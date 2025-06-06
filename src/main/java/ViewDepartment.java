@@ -14,7 +14,7 @@ import net.sf.jasperreports.view.JasperViewer;
 import net.sf.jasperreports.engine.type.HorizontalTextAlignEnum;
 import net.sf.jasperreports.engine.type.VerticalTextAlignEnum;
 
-public class ViewInstructor extends JFrame {
+public class ViewDepartment extends JFrame {
     private String dbUrl;
     private String user;
     private String pass;
@@ -23,7 +23,7 @@ public class ViewInstructor extends JFrame {
     private DefaultTableModel tableModel;
     private JButton generateReportButton;
 
-    public ViewInstructor() {
+    public ViewDepartment() {
         loadEnvVariables();
 
         if (dbUrl == null || user == null || pass == null) {
@@ -34,7 +34,7 @@ public class ViewInstructor extends JFrame {
             System.exit(1);
         }
 
-        setTitle("Daftar Instruktur");
+        setTitle("Daftar Departemen");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -99,7 +99,7 @@ public class ViewInstructor extends JFrame {
         tableModel.setRowCount(0);
         tableModel.setColumnCount(0);
 
-        String sql = "SELECT * FROM instructor";
+        String sql = "SELECT * FROM department";
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -138,10 +138,10 @@ public class ViewInstructor extends JFrame {
         try {
             JasperReport jasperReport = JasperReportsManager.createSimpleReport();
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put("ReportTitle", "Laporan Daftar Instruktur Universitas");
+            parameters.put("ReportTitle", "Laporan Daftar Departemen Universitas");
             JRDataSource dataSource = new JRTableModelDataSource(tableModel);
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-            String outputPath = "InstructorReport.pdf";
+            String outputPath = "DepartmentReport.pdf";
             JasperExportManager.exportReportToPdfFile(jasperPrint, outputPath);
             JOptionPane.showMessageDialog(this,
                     "Laporan berhasil dibuat!\nFile: " + outputPath,
@@ -179,7 +179,7 @@ public class ViewInstructor extends JFrame {
                 } else {
                     if (textElement instanceof JRDesignTextField) {
                         JRDesignTextField textField = (JRDesignTextField) textElement;
-                        if (textField.getExpression() != null && "$F{salary}".equals(textField.getExpression().getText())) {
+                        if (textField.getExpression() != null) {
                             textField.setHorizontalTextAlign(HorizontalTextAlignEnum.RIGHT);
                         } else {
                             textField.setHorizontalTextAlign(HorizontalTextAlignEnum.LEFT);
@@ -191,7 +191,7 @@ public class ViewInstructor extends JFrame {
 
         public static JasperReport createSimpleReport() throws JRException {
             JasperDesign design = new JasperDesign();
-            design.setName("InstructorSimpleReport");
+            design.setName("Department Report");
             design.setLeftMargin(30);
             design.setRightMargin(30);
             design.setTopMargin(20);
@@ -228,22 +228,17 @@ public class ViewInstructor extends JFrame {
             design.setColumnWidth(totalTableWidth);
 
             JRDesignField idField = new JRDesignField();
-            idField.setName("ID");
+            idField.setName("dept_name");
             idField.setValueClassName("java.lang.String");
             design.addField(idField);
 
-            JRDesignField nameField = new JRDesignField();
-            nameField.setName("name");
-            nameField.setValueClassName("java.lang.String");
-            design.addField(nameField);
-
             JRDesignField deptNameField = new JRDesignField();
-            deptNameField.setName("dept_name");
+            deptNameField.setName("building");
             deptNameField.setValueClassName("java.lang.String");
             design.addField(deptNameField);
 
             JRDesignField salaryField = new JRDesignField();
-            salaryField.setName("salary");
+            salaryField.setName("budget");
             salaryField.setValueClassName("java.math.BigDecimal");
             design.addField(salaryField);
 
@@ -254,48 +249,44 @@ public class ViewInstructor extends JFrame {
             int headerCurrentX = 0;
             float headerFontSize = 10f;
 
-            JRDesignStaticText headerIdText = new JRDesignStaticText();
-            headerIdText.setText("ID");
-            headerIdText.setX(headerCurrentX);
-            headerIdText.setY(0);
-            headerIdText.setWidth(idColWidth);
-            headerIdText.setHeight(cellHeight);
-            headerIdText.setFontSize(headerFontSize);
-            applyCellFormatting(headerIdText, true);
-            columnHeaderBand.addElement(headerIdText);
-            headerCurrentX += idColWidth;
-
-            JRDesignStaticText headerNameText = new JRDesignStaticText();
-            headerNameText.setText("Nama Instruktur");
-            headerNameText.setX(headerCurrentX);
-            headerNameText.setY(0);
-            headerNameText.setWidth(nameColWidth);
-            headerNameText.setHeight(cellHeight);
-            headerNameText.setFontSize(headerFontSize);
-            applyCellFormatting(headerNameText, true);
-            columnHeaderBand.addElement(headerNameText);
-            headerCurrentX += nameColWidth;
-
             JRDesignStaticText headerDeptNameText = new JRDesignStaticText();
-            headerDeptNameText.setText("Departemen");
+            headerDeptNameText.setText("Nama Departemen");
+            int deptNameColWidth = 300;
+            headerDeptNameText.setWidth(deptNameColWidth);
             headerDeptNameText.setX(headerCurrentX);
             headerDeptNameText.setY(0);
-            headerDeptNameText.setWidth(deptColWidth);
+            headerDeptNameText.setWidth(idColWidth);
             headerDeptNameText.setHeight(cellHeight);
             headerDeptNameText.setFontSize(headerFontSize);
             applyCellFormatting(headerDeptNameText, true);
             columnHeaderBand.addElement(headerDeptNameText);
-            headerCurrentX += deptColWidth;
+            headerCurrentX += idColWidth;
 
-            JRDesignStaticText headerSalaryText = new JRDesignStaticText();
-            headerSalaryText.setText("Gaji");
-            headerSalaryText.setX(headerCurrentX);
-            headerSalaryText.setY(0);
-            headerSalaryText.setWidth(salaryColWidth);
-            headerSalaryText.setHeight(cellHeight);
-            headerSalaryText.setFontSize(headerFontSize);
-            applyCellFormatting(headerSalaryText, true);
-            columnHeaderBand.addElement(headerSalaryText);
+            JRDesignStaticText headerBuildingText = new JRDesignStaticText();
+            headerBuildingText.setText("Ruangan");
+            int buildingColWidth = 200;
+            headerBuildingText.setWidth(buildingColWidth);
+            headerBuildingText.setX(headerCurrentX);
+            headerBuildingText.setY(0);
+            headerBuildingText.setWidth(nameColWidth);
+            headerBuildingText.setHeight(cellHeight);
+            headerBuildingText.setFontSize(headerFontSize);
+            applyCellFormatting(headerBuildingText, true);
+            columnHeaderBand.addElement(headerBuildingText);
+            headerCurrentX += nameColWidth;
+
+            JRDesignStaticText headerBudgetText = new JRDesignStaticText();
+            headerBudgetText.setText("Biaya");
+            int budgetColWidth = 150;
+            headerBudgetText.setWidth(budgetColWidth);
+            headerBudgetText.setX(headerCurrentX);
+            headerBudgetText.setY(0);
+            headerBudgetText.setWidth(deptColWidth);
+            headerBudgetText.setHeight(cellHeight);
+            headerBudgetText.setFontSize(headerFontSize);
+            applyCellFormatting(headerBudgetText, true);
+            columnHeaderBand.addElement(headerBudgetText);
+            headerCurrentX += deptColWidth;
 
             design.setColumnHeader(columnHeaderBand);
 
@@ -317,19 +308,8 @@ public class ViewInstructor extends JFrame {
             int detailCurrentX = 0;
             float detailFontSize = 10f;
 
-            JRDesignTextField idText = new JRDesignTextField();
-            idText.setExpression(new JRDesignExpression("$F{ID}"));
-            idText.setX(detailCurrentX);
-            idText.setY(0);
-            idText.setWidth(idColWidth);
-            idText.setHeight(cellHeight);
-            idText.setFontSize(detailFontSize);
-            applyCellFormatting(idText, false);
-            detailBand.addElement(idText);
-            detailCurrentX += idColWidth;
-
             JRDesignTextField nameText = new JRDesignTextField();
-            nameText.setExpression(new JRDesignExpression("$F{name}"));
+            nameText.setExpression(new JRDesignExpression("$F{dept_name}"));
             nameText.setX(detailCurrentX);
             nameText.setY(0);
             nameText.setWidth(nameColWidth);
@@ -340,7 +320,7 @@ public class ViewInstructor extends JFrame {
             detailCurrentX += nameColWidth;
 
             JRDesignTextField deptNameText = new JRDesignTextField();
-            deptNameText.setExpression(new JRDesignExpression("$F{dept_name}"));
+            deptNameText.setExpression(new JRDesignExpression("$F{building}"));
             deptNameText.setX(detailCurrentX);
             deptNameText.setY(0);
             deptNameText.setWidth(deptColWidth);
@@ -351,7 +331,7 @@ public class ViewInstructor extends JFrame {
             detailCurrentX += deptColWidth;
 
             JRDesignTextField salaryText = new JRDesignTextField();
-            salaryText.setExpression(new JRDesignExpression("$F{salary}"));
+            salaryText.setExpression(new JRDesignExpression("$F{budget}"));
             salaryText.setX(detailCurrentX);
             salaryText.setY(0);
             salaryText.setWidth(salaryColWidth);
@@ -366,7 +346,7 @@ public class ViewInstructor extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new ViewInstructor().setVisible(true);
+            new ViewDepartment().setVisible(true);
         });
     }
 }
